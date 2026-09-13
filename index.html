@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>75 Soft Challenge Dashboard</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #7f8c8d;
+      --primary: #4a90e2;
+      --accent: #2ecc71;
+      --border-color: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      color: var(--text-main);
+      margin-bottom: 5px;
+    }
+
+    header p {
+      color: var(--text-muted);
+    }
+
+    /* Tabs Layout */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background-color: #e0e6ed;
+      color: var(--text-main);
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Overall Progress Bar */
+    .overall-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .progress-bar-bg {
+      background-color: #e2e8f0;
+      border-radius: 20px;
+      height: 24px;
+      width: 100%;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+
+    .progress-bar-fill {
+      background-color: var(--accent);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Grid Layouts */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    /* Day Selector Controls */
+    .day-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      background: var(--card-bg);
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .day-selector button {
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .day-selector button:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    /* Checklist & Schedule */
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .checklist-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .checklist-item label {
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* Schedule Timeblock Form */
+    .schedule-input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .schedule-input-group input[type="time"] {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    .schedule-input-group input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    .schedule-input-group button {
+      padding: 8px 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .schedule-list {
+      list-style: none;
+    }
+
+    .schedule-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .schedule-list li.completed span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .delete-btn {
+      color: #e74c3c;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    /* Meal & Water Section */
+    .meal-group {
+      margin-bottom: 15px;
+    }
+
+    .meal-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 0.95rem;
+    }
+
+    .meal-group textarea {
+      width: 100%;
+      height: 60px;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    .water-tracker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ebf8ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .water-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .water-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* 75-Day Grid Overview */
+    .master-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .day-square {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 5px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .day-square.completed {
+      background: #dcfce7;
+      border-color: var(--accent);
+      color: #166534;
+      font-weight: bold;
+    }
+
+    .day-square.current {
+      border: 2px solid var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>75 Soft Challenge Dashboard</h1>
+    <p>Track daily meals, habits, time-blocking, and complete progress</p>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('daily')">Daily Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('overall')">75-Day Grid Overview</button>
+  </div>
+
+  <!-- TAB 1: DAILY DASHBOARD -->
+  <div id="daily-tab" class="tab-content active">
+    
+    <!-- Day Navigation -->
+    <div class="day-selector">
+      <button id="prev-day-btn" onclick="changeDay(-1)">&larr; Previous Day</button>
+      <h2 id="current-day-heading">Day 1 of 75</h2>
+      <button id="next-day-btn" onclick="changeDay(1)">Next Day &rarr;</button>
+    </div>
+
+    <div class="dashboard-grid">
+      
+      <!-- Core Habits Checklist -->
+      <div class="card">
+        <h2>75 Soft Core Habits</h2>
+        <div class="checklist-item">
+          <input type="checkbox" id="habit-eatwell" onchange="saveCurrentDayData()">
+          <label for="habit-eatwell">Eat well (Nutritious meals, alcohol only socially)</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" id="habit-workout" onchange="saveCurrentDayData()">
+          <label for="habit-workout">45 min workout (1 recovery day/week allowed)</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" id="habit-water" onchange="saveCurrentDayData()">
+          <label for="habit-water">Drink 3 Liters of water</label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" id="habit-reading" onchange="saveCurrentDayData()">
+          <label for="habit-reading">Read 10 pages of any book</label>
+        </div>
+
+        <!-- Quick Water Counter -->
+        <div class="water-tracker">
+          <div>
+            <strong>Water Intake:</strong> <span id="water-display">0.0</span> / 3.0 L
+          </div>
+          <div class="water-controls">
+            <button class="water-btn" onclick="adjustWater(-0.5)">-0.5L</button>
+            <button class="water-btn" onclick="adjustWater(0.5)">+0.5L</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeblock Daily Schedule -->
+      <div class="card">
+        <h2>Daily Time-Block Schedule</h2>
+        <div class="schedule-input-group">
+          <input type="time" id="schedule-time">
+          <input type="text" id="schedule-task" placeholder="e.g. Morning Workout">
+          <button onclick="addScheduleItem()">Add</button>
+        </div>
+        <ul id="schedule-list" class="schedule-list">
+          <!-- Items injected via JS -->
+        </ul>
+      </div>
+
+      <!-- Meal Tracker Card -->
+      <div class="card">
+        <h2>Meal Tracker</h2>
+        <div class="meal-group">
+          <label for="meal-breakfast">Breakfast</label>
+          <textarea id="meal-breakfast" placeholder="What did you eat for breakfast?" oninput="saveCurrentDayData()"></textarea>
+        </div>
+        <div class="meal-group">
+          <label for="meal-lunch">Lunch</label>
+          <textarea id="meal-lunch" placeholder="What did you eat for lunch?" oninput="saveCurrentDayData()"></textarea>
+        </div>
+        <div class="meal-group">
+          <label for="meal-dinner">Dinner</label>
+          <textarea id="meal-dinner" placeholder="What did you eat for dinner?" oninput="saveCurrentDayData()"></textarea>
+        </div>
+        <div class="meal-group">
+          <label for="meal-snacks">Snacks</label>
+          <textarea id="meal-snacks" placeholder="Log snacks or drinks..." oninput="saveCurrentDayData()"></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 2: OVERALL 75-DAY GRID -->
+  <div id="overall-tab" class="tab-content">
+    <div class="overall-card">
+      <h2>Overall Challenge Progress</h2>
+      <div class="progress-bar-bg">
+        <div id="overall-progress-fill" class="progress-bar-fill"></div>
+      </div>
+      <p><span id="completed-days-count">0</span> of 75 Days Completed (<span id="overall-percentage">0%</span>)</p>
+    </div>
+
+    <div class="card">
+      <h2>75-Day Master Tracker Grid</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">Click any day to jump to its log or view status.</p>
+      <div id="master-grid" class="master-grid">
+        <!-- 75 days generated via JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // App State Management
+    let currentDay = 1;
+    let appData = JSON.parse(localStorage.getItem('75SoftData')) || {};
+
+    // Initial setup
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDay(currentDay);
+      renderMasterGrid();
+      updateOverallProgress();
+    });
+
+    // Tab Switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'daily') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('daily-tab').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('overall-tab').classList.add('active');
+        renderMasterGrid();
+        updateOverallProgress();
+      }
+    }
+
+    // Load Data for Active Day
+    function loadDay(day) {
+      currentDay = day;
+      document.getElementById('current-day-heading').innerText = `Day ${currentDay} of 75`;
+      
+      document.getElementById('prev-day-btn').disabled = (currentDay === 1);
+      document.getElementById('next-day-btn').disabled = (currentDay === 75);
+
+      const dayData = appData[currentDay] || {
+        habits: { eatwell: false, workout: false, water: false, reading: false },
+        waterAmount: 0.0,
+        schedule: [],
+        meals: { breakfast: '', lunch: '', dinner: '', snacks: '' }
+      };
+
+      // Set Checkboxes
+      document.getElementById('habit-eatwell').checked = dayData.habits?.eatwell || false;
+      document.getElementById('habit-workout').checked = dayData.habits?.workout || false;
+      document.getElementById('habit-water').checked = dayData.habits?.water || false;
+      document.getElementById('habit-reading').checked = dayData.habits?.reading || false;
+
+      // Water Display
+      document.getElementById('water-display').innerText = (dayData.waterAmount || 0.0).toFixed(1);
+
+      // Set Meals
+      document.getElementById('meal-breakfast').value = dayData.meals?.breakfast || '';
+      document.getElementById('meal-lunch').value = dayData.meals?.lunch || '';
+      document.getElementById('meal-dinner').value = dayData.meals?.dinner || '';
+      document.getElementById('meal-snacks').value = dayData.meals?.snacks || '';
+
+      // Render Schedule
+      renderSchedule(dayData.schedule || []);
+    }
+
+    // Save Data to LocalStorage
+    function saveCurrentDayData() {
+      const eatwell = document.getElementById('habit-eatwell').checked;
+      const workout = document.getElementById('habit-workout').checked;
+      const water = document.getElementById('habit-water').checked;
+      const reading = document.getElementById('habit-reading').checked;
+      const waterAmount = parseFloat(document.getElementById('water-display').innerText);
+
+      const breakfast = document.getElementById('meal-breakfast').value;
+      const lunch = document.getElementById('meal-lunch').value;
+      const dinner = document.getElementById('meal-dinner').value;
+      const snacks = document.getElementById('meal-snacks').value;
+
+      const currentSchedule = appData[currentDay]?.schedule || [];
+
+      appData[currentDay] = {
+        habits: { eatwell, workout, water, reading },
+        waterAmount,
+        schedule: currentSchedule,
+        meals: { breakfast, lunch, dinner, snacks },
+        completed: (eatwell && workout && water && reading)
+      };
+
+      localStorage.setItem('75SoftData', JSON.stringify(appData));
+    }
+
+    // Navigate Days
+    function changeDay(delta) {
+      saveCurrentDayData();
+      const targetDay = currentDay + delta;
+      if (targetDay >= 1 && targetDay <= 75) {
+        loadDay(targetDay);
+      }
+    }
+
+    // Water Controls
+    function adjustWater(amount) {
+      let currentVal = parseFloat(document.getElementById('water-display').innerText);
+      let newVal = Math.min(Math.max(0, currentVal + amount), 5.0);
+      document.getElementById('water-display').innerText = newVal.toFixed(1);
+      
+      // Auto-check water habit if target reached
+      if (newVal >= 3.0) {
+        document.getElementById('habit-water').checked = true;
+      }
+      saveCurrentDayData();
+    }
+
+    // Schedule Operations
+    function addScheduleItem() {
+      const timeInput = document.getElementById('schedule-time');
+      const taskInput = document.getElementById('schedule-task');
+
+      if (!taskInput.value.trim()) return;
+
+      if (!appData[currentDay]) appData[currentDay] = {};
+      if (!appData[currentDay].schedule) appData[currentDay].schedule = [];
+
+      appData[currentDay].schedule.push({
+        id: Date.now(),
+        time: timeInput.value || 'All Day',
+        task: taskInput.value.trim(),
+        done: false
+      });
+
+      timeInput.value = '';
+      taskInput.value = '';
+
+      saveCurrentDayData();
+      renderSchedule(appData[currentDay].schedule);
+    }
+
+    function toggleScheduleItem(id) {
+      const schedule = appData[currentDay].schedule;
+      const item = schedule.find(i => i.id === id);
+      if (item) {
+        item.done = !item.done;
+        saveCurrentDayData();
+        renderSchedule(schedule);
+      }
+    }
+
+    function deleteScheduleItem(id) {
+      appData[currentDay].schedule = appData[currentDay].schedule.filter(i => i.id !== id);
+      saveCurrentDayData();
+      renderSchedule(appData[currentDay].schedule);
+    }
+
+    function renderSchedule(schedule) {
+      const list = document.getElementById('schedule-list');
+      list.innerHTML = '';
+      schedule.forEach(item => {
+        const li = document.createElement('li');
+        if (item.done) li.classList.add('completed');
+        li.innerHTML = `
+          <div>
+            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleScheduleItem(${item.id})">
+            <span><strong>${item.time}:</strong> ${item.task}</span>
+          </div>
+          <button class="delete-btn" onclick="deleteScheduleItem(${item.id})">&times;</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    // Render Master Grid View
+    function renderMasterGrid() {
+      const grid = document.getElementById('master-grid');
+      grid.innerHTML = '';
+
+      for (let day = 1; day <= 75; day++) {
+        const dayData = appData[day];
+        const isCompleted = dayData?.completed;
+        
+        const square = document.createElement('div');
+        square.className = `day-square ${isCompleted ? 'completed' : ''} ${day === currentDay ? 'current' : ''}`;
+        square.innerText = `Day ${day}`;
+        square.onclick = () => {
+          switchTab('daily');
+          loadDay(day);
+        };
+        grid.appendChild(square);
+      }
+    }
+
+    // Update Progress Overall
+    function updateOverallProgress() {
+      let completedDays = 0;
+      for (let day = 1; day <= 75; day++) {
+        if (appData[day]?.completed) {
+          completedDays++;
+        }
+      }
+      const percentage = Math.round((completedDays / 75) * 100);
+      document.getElementById('completed-days-count').innerText = completedDays;
+      document.getElementById('overall-percentage').innerText = `${percentage}%`;
+      document.getElementById('overall-progress-fill').style.width = `${percentage}%`;
+    }
+  </script>
+</body>
+</html>
